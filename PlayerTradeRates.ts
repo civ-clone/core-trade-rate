@@ -1,7 +1,10 @@
 import Player from '@civ-clone/core-player/Player';
 import TradeRate from './TradeRate';
+import DataObject, {
+  IDataObject,
+} from '@civ-clone/core-data-object/DataObject';
 
-export interface IPlayerTradeRates {
+export interface IPlayerTradeRates extends IDataObject {
   all(): TradeRate[];
   balance(fixed: TradeRate): void;
   get(Type: typeof TradeRate): TradeRate;
@@ -10,14 +13,18 @@ export interface IPlayerTradeRates {
   total(): number;
 }
 
-export class PlayerTradeRates implements IPlayerTradeRates {
+export class PlayerTradeRates extends DataObject implements IPlayerTradeRates {
   #fudgeFactor: number = 100;
   #player: Player;
   #rates: TradeRate[] = [];
 
   constructor(player: Player, ...rates: TradeRate[]) {
+    super();
+
     this.#player = player;
     this.#rates = rates;
+
+    this.addKey('all');
   }
 
   all(): TradeRate[] {

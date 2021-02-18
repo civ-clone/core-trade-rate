@@ -15,13 +15,16 @@ var __classPrivateFieldGet = (this && this.__classPrivateFieldGet) || function (
 var _fudgeFactor, _player, _rates;
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.PlayerTradeRates = void 0;
-class PlayerTradeRates {
+const DataObject_1 = require("@civ-clone/core-data-object/DataObject");
+class PlayerTradeRates extends DataObject_1.default {
     constructor(player, ...rates) {
+        super();
         _fudgeFactor.set(this, 100);
         _player.set(this, void 0);
         _rates.set(this, []);
         __classPrivateFieldSet(this, _player, player);
         __classPrivateFieldSet(this, _rates, rates);
+        this.addKey('all');
     }
     all() {
         return [...__classPrivateFieldGet(this, _rates)];
