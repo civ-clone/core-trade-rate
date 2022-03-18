@@ -10,7 +10,8 @@ export interface IPlayerTradeRatesRegistry
 }
 export declare class PlayerTradeRatesRegistry
   extends EntityRegistry
-  implements IPlayerTradeRatesRegistry {
+  implements IPlayerTradeRatesRegistry
+{
   constructor();
   getByPlayer(player: Player): PlayerTradeRates;
 }

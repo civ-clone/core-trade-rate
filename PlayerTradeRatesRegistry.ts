@@ -12,7 +12,8 @@ export interface IPlayerTradeRatesRegistry
 
 export class PlayerTradeRatesRegistry
   extends EntityRegistry
-  implements IPlayerTradeRatesRegistry {
+  implements IPlayerTradeRatesRegistry
+{
   constructor() {
     super(PlayerTradeRates);
   }
@@ -28,6 +29,7 @@ export class PlayerTradeRatesRegistry
   }
 }
 
-export const instance: PlayerTradeRatesRegistry = new PlayerTradeRatesRegistry();
+export const instance: PlayerTradeRatesRegistry =
+  new PlayerTradeRatesRegistry();
 
 export default PlayerTradeRatesRegistry;

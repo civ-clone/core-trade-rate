@@ -9,11 +9,13 @@ export interface IPlayerTradeRates extends IDataObject {
   get(Type: typeof TradeRate): TradeRate;
   player(): Player;
   set(Type: typeof TradeRate, value: number): void;
+  setAll(ratesAndValues: [typeof TradeRate, number][]): void;
   total(): number;
 }
 export declare class PlayerTradeRates
   extends DataObject
-  implements IPlayerTradeRates {
+  implements IPlayerTradeRates
+{
   #private;
   constructor(player: Player, ...rates: TradeRate[]);
   all(): TradeRate[];
@@ -21,6 +23,7 @@ export declare class PlayerTradeRates
   get(TradeRateType: typeof TradeRate): TradeRate;
   player(): Player;
   set(Type: typeof TradeRate, value: number): void;
+  setAll(ratesAndValues: [typeof TradeRate, number][]): void;
   total(): number;
 }
 export default PlayerTradeRates;

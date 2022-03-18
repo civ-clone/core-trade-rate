@@ -10,6 +10,7 @@ export interface IPlayerTradeRates extends IDataObject {
   get(Type: typeof TradeRate): TradeRate;
   player(): Player;
   set(Type: typeof TradeRate, value: number): void;
+  setAll(ratesAndValues: [typeof TradeRate, number][]): void;
   total(): number;
 }
 
@@ -75,6 +76,14 @@ export class PlayerTradeRates extends DataObject implements IPlayerTradeRates {
     rate.set(value);
 
     this.balance(rate);
+  }
+
+  setAll(ratesAndValues: [typeof TradeRate, number][]): void {
+    if (ratesAndValues.reduce((total, [, value]) => total + value, 0) !== 1) {
+      throw new TypeError(`Invalid rates provided, must sum to 1.`);
+    }
+
+    ratesAndValues.forEach(([Type, value]) => this.get(Type).set(value));
   }
 
   total(): number {

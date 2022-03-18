@@ -7,7 +7,8 @@ export interface IAvailableTradeRateRegistry
   extends IConstructorRegistry<TradeRate> {}
 export declare class AvailableTradeRateRegistry
   extends ConstructorRegistry<TradeRate>
-  implements IAvailableTradeRateRegistry {
+  implements IAvailableTradeRateRegistry
+{
   constructor();
 }
 export declare const instance: AvailableTradeRateRegistry;

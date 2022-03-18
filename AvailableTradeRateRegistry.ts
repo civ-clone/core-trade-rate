@@ -9,12 +9,14 @@ export interface IAvailableTradeRateRegistry
 
 export class AvailableTradeRateRegistry
   extends ConstructorRegistry<TradeRate>
-  implements IAvailableTradeRateRegistry {
+  implements IAvailableTradeRateRegistry
+{
   constructor() {
     super(TradeRate);
   }
 }
 
-export const instance: AvailableTradeRateRegistry = new AvailableTradeRateRegistry();
+export const instance: AvailableTradeRateRegistry =
+  new AvailableTradeRateRegistry();
 
 export default AvailableTradeRateRegistry;
