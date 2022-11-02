@@ -14,7 +14,7 @@ var _PlayerTradeRates_fudgeFactor, _PlayerTradeRates_player, _PlayerTradeRates_r
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.PlayerTradeRates = void 0;
 const DataObject_1 = require("@civ-clone/core-data-object/DataObject");
-class PlayerTradeRates extends DataObject_1.default {
+class PlayerTradeRates extends DataObject_1.DataObject {
     constructor(player, ...rates) {
         super();
         _PlayerTradeRates_fudgeFactor.set(this, 100);

@@ -1,8 +1,9 @@
-import Player from '@civ-clone/core-player/Player';
-import TradeRate from './TradeRate';
-import DataObject, {
+import {
+  DataObject,
   IDataObject,
 } from '@civ-clone/core-data-object/DataObject';
+import Player from '@civ-clone/core-player/Player';
+import TradeRate from './TradeRate';
 
 export interface IPlayerTradeRates extends IDataObject {
   all(): TradeRate[];
@@ -43,6 +44,7 @@ export class PlayerTradeRates extends DataObject implements IPlayerTradeRates {
         (total: number, rate: TradeRate): number => total + rate.value(),
         0
       );
+
     others.forEach((rate: TradeRate): void =>
       rate.set((rate.value() / current) * available)
     );

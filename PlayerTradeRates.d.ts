@@ -1,8 +1,9 @@
-import Player from '@civ-clone/core-player/Player';
-import TradeRate from './TradeRate';
-import DataObject, {
+import {
+  DataObject,
   IDataObject,
 } from '@civ-clone/core-data-object/DataObject';
+import Player from '@civ-clone/core-player/Player';
+import TradeRate from './TradeRate';
 export interface IPlayerTradeRates extends IDataObject {
   all(): TradeRate[];
   balance(fixed: TradeRate): void;
