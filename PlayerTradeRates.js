@@ -10,14 +10,13 @@ var __classPrivateFieldGet = (this && this.__classPrivateFieldGet) || function (
     if (typeof state === "function" ? receiver !== state || !f : !state.has(receiver)) throw new TypeError("Cannot read private member from an object whose class did not declare it");
     return kind === "m" ? f : kind === "a" ? f.call(receiver) : f ? f.value : state.get(receiver);
 };
-var _PlayerTradeRates_fudgeFactor, _PlayerTradeRates_player, _PlayerTradeRates_rates;
+var _PlayerTradeRates_player, _PlayerTradeRates_rates;
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.PlayerTradeRates = void 0;
 const DataObject_1 = require("@civ-clone/core-data-object/DataObject");
 class PlayerTradeRates extends DataObject_1.DataObject {
     constructor(player, ...rates) {
         super();
-        _PlayerTradeRates_fudgeFactor.set(this, 100);
         _PlayerTradeRates_player.set(this, void 0);
         _PlayerTradeRates_rates.set(this, []);
         __classPrivateFieldSet(this, _PlayerTradeRates_player, player, "f");
@@ -28,16 +27,16 @@ class PlayerTradeRates extends DataObject_1.DataObject {
         return [...__classPrivateFieldGet(this, _PlayerTradeRates_rates, "f")];
     }
     balance(fixed) {
-        if (this.total() === 1) {
+        if (this.total() === 100) {
             return;
         }
-        const available = 1 - fixed.value(), others = __classPrivateFieldGet(this, _PlayerTradeRates_rates, "f").filter((rate) => rate !== fixed), current = others.reduce((total, rate) => total + rate.value(), 0);
+        const available = 100 - fixed.value(), others = __classPrivateFieldGet(this, _PlayerTradeRates_rates, "f").filter((rate) => rate !== fixed), current = others.reduce((total, rate) => total + rate.value(), 0);
         others.forEach((rate) => rate.set((rate.value() / current) * available));
-        if (this.total() < 1) {
-            others[Math.floor(others.length * Math.random())].add(1 - this.total());
+        if (this.total() < 100) {
+            others[Math.floor(others.length * Math.random())].add(100 - this.total());
         }
-        if (this.total() > 1) {
-            others[Math.floor(others.length * Math.random())].subtract(1 - this.total());
+        if (this.total() > 100) {
+            others[Math.floor(others.length * Math.random())].subtract(100 - this.total());
         }
     }
     get(TradeRateType) {
@@ -53,16 +52,17 @@ class PlayerTradeRates extends DataObject_1.DataObject {
         this.balance(rate);
     }
     setAll(ratesAndValues) {
-        if (ratesAndValues.reduce((total, [, value]) => total + value, 0) !== 1) {
-            throw new TypeError(`Invalid rates provided, must sum to 1.`);
+        if (ratesAndValues.reduce((total, [, value]) => total + value, 0) !==
+            100) {
+            throw new TypeError(`Invalid rates provided, must sum to 100.`);
         }
         ratesAndValues.forEach(([Type, value]) => this.get(Type).set(value));
     }
     total() {
-        return (Math.round(__classPrivateFieldGet(this, _PlayerTradeRates_rates, "f").reduce((total, rate) => total + rate.value(), 0) * __classPrivateFieldGet(this, _PlayerTradeRates_fudgeFactor, "f")) / __classPrivateFieldGet(this, _PlayerTradeRates_fudgeFactor, "f"));
+        return __classPrivateFieldGet(this, _PlayerTradeRates_rates, "f").reduce((total, rate) => total + rate.value(), 0);
     }
 }
 exports.PlayerTradeRates = PlayerTradeRates;
-_PlayerTradeRates_fudgeFactor = new WeakMap(), _PlayerTradeRates_player = new WeakMap(), _PlayerTradeRates_rates = new WeakMap();
+_PlayerTradeRates_player = new WeakMap(), _PlayerTradeRates_rates = new WeakMap();
 exports.default = PlayerTradeRates;
 //# sourceMappingURL=PlayerTradeRates.js.map

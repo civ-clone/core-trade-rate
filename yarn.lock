@@ -3,63 +3,57 @@
 
 
 "@civ-clone/core-civilization@^0.1.0":
-  version "0.1.1"
-  resolved "https://registry.yarnpkg.com/@civ-clone/core-civilization/-/core-civilization-0.1.1.tgz#c576c9e3de520a2f3f5e113188ba3f347b73f2b3"
-  integrity sha512-+Wvy+RliVtHPLaE9mBjWJFXbJoMDvkDx0Xvvzm8s1LBn2DTE0px6P2zLUKpWhYMM++ujRzzRjXNI5qf40oIXfw==
+  "integrity" "sha512-+Wvy+RliVtHPLaE9mBjWJFXbJoMDvkDx0Xvvzm8s1LBn2DTE0px6P2zLUKpWhYMM++ujRzzRjXNI5qf40oIXfw=="
+  "resolved" "https://registry.npmjs.org/@civ-clone/core-civilization/-/core-civilization-0.1.1.tgz"
+  "version" "0.1.1"
   dependencies:
     "@civ-clone/core-data-object" "^0.1.0"
     "@civ-clone/core-registry" "^0.1.0"
     "@civ-clone/core-yield" "^0.1.0"
 
 "@civ-clone/core-data-object@^0.1.0":
-  version "0.1.1"
-  resolved "https://registry.yarnpkg.com/@civ-clone/core-data-object/-/core-data-object-0.1.1.tgz#d8dc8ee2d805ec2410b7f8cbf0725f9199019d42"
-  integrity sha512-kkET5mHzWYLtvwf9CwnyrnYPjajshdMOE4fVOL6QWRAaE1CViefL1zdftRZJ4GDe3PQuBJeK5UgEuvubJF4HOQ==
+  "integrity" "sha512-CqDYx3KncNA3N9gMKFyUkI3k2HjCS/hKQulj6bRqwcbnVuXYxkzfjVgaVMGR796Ds2DcbUI8Bum1HpHCOv2wCw=="
+  "resolved" "https://registry.npmjs.org/@civ-clone/core-data-object/-/core-data-object-0.1.6.tgz"
+  "version" "0.1.6"
   dependencies:
     "@civ-clone/core-registry" "^0.1.0"
-    ulid "^2.3.0"
 
 "@civ-clone/core-player@^0.1.0":
-  version "0.1.2"
-  resolved "https://registry.yarnpkg.com/@civ-clone/core-player/-/core-player-0.1.2.tgz#8272e5871eb4f6c4326deacb9c8641ecb00236c1"
-  integrity sha512-ekxKuNn7jSnImbtP33TCMkV68uKC9e8Uaw0FPLlA5AkKLj1sD5Fg5FtGdMS9jXUyo0BKEVUMrXlehkIToQ+Ifw==
+  "integrity" "sha512-ekxKuNn7jSnImbtP33TCMkV68uKC9e8Uaw0FPLlA5AkKLj1sD5Fg5FtGdMS9jXUyo0BKEVUMrXlehkIToQ+Ifw=="
+  "resolved" "https://registry.npmjs.org/@civ-clone/core-player/-/core-player-0.1.2.tgz"
+  "version" "0.1.2"
   dependencies:
     "@civ-clone/core-civilization" "^0.1.0"
     "@civ-clone/core-data-object" "^0.1.0"
     "@civ-clone/core-registry" "^0.1.0"
     "@civ-clone/core-rule" "^0.1.0"
 
-"@civ-clone/core-registry@^0.1", "@civ-clone/core-registry@^0.1.0":
-  version "0.1.0"
-  resolved "https://registry.yarnpkg.com/@civ-clone/core-registry/-/core-registry-0.1.0.tgz#ea5f9c964f8782c54a8e626cef6754c73fd5bb4a"
-  integrity sha512-g8TqSC+kwDTgpgGBaQd/d4G5Mw75qb4C1nDu3qeVf3bEmggoM5IpyJbSrrn5+uISPJdF9OIQuZWmugLQSmk0tQ==
+"@civ-clone/core-registry@^0.1.0":
+  "integrity" "sha512-g8TqSC+kwDTgpgGBaQd/d4G5Mw75qb4C1nDu3qeVf3bEmggoM5IpyJbSrrn5+uISPJdF9OIQuZWmugLQSmk0tQ=="
+  "resolved" "https://registry.npmjs.org/@civ-clone/core-registry/-/core-registry-0.1.0.tgz"
+  "version" "0.1.0"
 
 "@civ-clone/core-rule@^0.1.0":
-  version "0.1.0"
-  resolved "https://registry.yarnpkg.com/@civ-clone/core-rule/-/core-rule-0.1.0.tgz#45486bf9a7b4326b18eec5a16d706cdc7d5d427e"
-  integrity sha512-K0um1LoUOjWW9DQfvR4/0fqhETNIJbM+qPeNFbeBOijtrk9bIJ+kNtv7hriZ5BEK7cdlZBcgcbu7LAVcFZc0Tg==
+  "integrity" "sha512-YKK0Z6uYnw3EASzH+KqkFCQ9VTGLnsLFT4K5kR2Zr/RLo+qkyBMOs0l3DgpbhddfsHqzRY+yscrGjnF4L63rog=="
+  "resolved" "https://registry.npmjs.org/@civ-clone/core-rule/-/core-rule-0.1.1.tgz"
+  "version" "0.1.1"
   dependencies:
-    "@civ-clone/core-registry" "^0.1"
+    "@civ-clone/core-registry" "^0.1.0"
 
 "@civ-clone/core-yield@^0.1.0":
-  version "0.1.0"
-  resolved "https://registry.yarnpkg.com/@civ-clone/core-yield/-/core-yield-0.1.0.tgz#0d9dcedeb5f18f3f09ba28fed3e2bba92285aa57"
-  integrity sha512-97rwsBg9KYfMkLBkZgsSK3uCNb5VotZvDskMQMlZXJ+yoO6TUw+Lh2XKjmSHzGNk829Tg5s0c2m57ehre2/FpA==
+  "integrity" "sha512-+UY0gXsdqs6+s9ipeLdkSn3OqTXHJBCtH/VILI+sAp8Wx4ObnCreiydwBK6LG0YFVhLXPdXtBzEU+FxEWV18xA=="
+  "resolved" "https://registry.npmjs.org/@civ-clone/core-yield/-/core-yield-0.1.1.tgz"
+  "version" "0.1.1"
   dependencies:
     "@civ-clone/core-data-object" "^0.1.0"
     "@civ-clone/core-registry" "^0.1.0"
 
-prettier@^2.1.2:
-  version "2.2.1"
-  resolved "https://registry.yarnpkg.com/prettier/-/prettier-2.2.1.tgz#795a1a78dd52f073da0cd42b21f9c91381923ff5"
-  integrity sha512-PqyhM2yCjg/oKkFPtTGUojv7gnZAoG80ttl45O6x2Ug/rMJw4wcc9k6aaf2hibP7BGVCCM33gZoGjyvt9mm16Q==
+"prettier@^2.1.2":
+  "integrity" "sha512-m2FgJibYrBGGgQXNzfd0PuDGShJgRavjUoRCw1mZERIWVSXF0iLzLm+aOqTAbLnC3n6JzUhAA8uZnFVghHJ86A=="
+  "resolved" "https://registry.npmjs.org/prettier/-/prettier-2.6.0.tgz"
+  "version" "2.6.0"
 
-typescript@^4.0.3:
-  version "4.1.5"
-  resolved "https://registry.yarnpkg.com/typescript/-/typescript-4.1.5.tgz#123a3b214aaff3be32926f0d8f1f6e704eb89a72"
-  integrity sha512-6OSu9PTIzmn9TCDiovULTnET6BgXtDYL4Gg4szY+cGsc3JP1dQL8qvE8kShTRx1NIw4Q9IBHlwODjkjWEtMUyA==
-
-ulid@^2.3.0:
-  version "2.3.0"
-  resolved "https://registry.yarnpkg.com/ulid/-/ulid-2.3.0.tgz#93063522771a9774121a84d126ecd3eb9804071f"
-  integrity sha512-keqHubrlpvT6G2wH0OEfSW4mquYRcbe/J8NMmveoQOjUqmo+hXtO+ORCpWhdbZ7k72UtY61BL7haGxW6enBnjw==
+"typescript@^4.0.3":
+  "integrity" "sha512-HM/hFigTBHZhLXshn9sN37H085+hQGeJHJ/X7LpBWLID/fbc2acUMfU+lGD98X81sKP+pFa9f0DZmCwB9GnbAg=="
+  "resolved" "https://registry.npmjs.org/typescript/-/typescript-4.6.2.tgz"
+  "version" "4.6.2"

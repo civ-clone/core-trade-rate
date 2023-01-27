@@ -16,7 +16,6 @@ export interface IPlayerTradeRates extends IDataObject {
 }
 
 export class PlayerTradeRates extends DataObject implements IPlayerTradeRates {
-  #fudgeFactor: number = 100;
   #player: Player;
   #rates: TradeRate[] = [];
 
@@ -34,11 +33,11 @@ export class PlayerTradeRates extends DataObject implements IPlayerTradeRates {
   }
 
   balance(fixed: TradeRate): void {
-    if (this.total() === 1) {
+    if (this.total() === 100) {
       return;
     }
 
-    const available = 1 - fixed.value(),
+    const available = 100 - fixed.value(),
       others = this.#rates.filter((rate: TradeRate) => rate !== fixed),
       current = others.reduce(
         (total: number, rate: TradeRate): number => total + rate.value(),
@@ -49,13 +48,13 @@ export class PlayerTradeRates extends DataObject implements IPlayerTradeRates {
       rate.set((rate.value() / current) * available)
     );
 
-    if (this.total() < 1) {
-      others[Math.floor(others.length * Math.random())].add(1 - this.total());
+    if (this.total() < 100) {
+      others[Math.floor(others.length * Math.random())].add(100 - this.total());
     }
 
-    if (this.total() > 1) {
+    if (this.total() > 100) {
       others[Math.floor(others.length * Math.random())].subtract(
-        1 - this.total()
+        100 - this.total()
       );
     }
   }
@@ -81,21 +80,20 @@ export class PlayerTradeRates extends DataObject implements IPlayerTradeRates {
   }
 
   setAll(ratesAndValues: [typeof TradeRate, number][]): void {
-    if (ratesAndValues.reduce((total, [, value]) => total + value, 0) !== 1) {
-      throw new TypeError(`Invalid rates provided, must sum to 1.`);
+    if (
+      ratesAndValues.reduce((total: number, [, value]) => total + value, 0) !==
+      100
+    ) {
+      throw new TypeError(`Invalid rates provided, must sum to 100.`);
     }
 
     ratesAndValues.forEach(([Type, value]) => this.get(Type).set(value));
   }
 
   total(): number {
-    return (
-      Math.round(
-        this.#rates.reduce(
-          (total: number, rate: TradeRate): number => total + rate.value(),
-          0
-        ) * this.#fudgeFactor
-      ) / this.#fudgeFactor
+    return this.#rates.reduce(
+      (total: number, rate: TradeRate) => total + rate.value(),
+      0
     );
   }
 }
