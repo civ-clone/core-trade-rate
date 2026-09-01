@@ -16,20 +16,20 @@ export interface IPlayerTradeRates extends IDataObject {
 }
 
 export class PlayerTradeRates extends DataObject implements IPlayerTradeRates {
-  #player: Player;
-  #rates: TradeRate[] = [];
+  private _player: Player;
+  private _rates: TradeRate[] = [];
 
   constructor(player: Player, ...rates: TradeRate[]) {
     super();
 
-    this.#player = player;
-    this.#rates = rates;
+    this._player = player;
+    this._rates = rates;
 
     this.addKey('all');
   }
 
   all(): TradeRate[] {
-    return [...this.#rates];
+    return [...this._rates];
   }
 
   balance(fixed: TradeRate): void {
@@ -38,7 +38,7 @@ export class PlayerTradeRates extends DataObject implements IPlayerTradeRates {
     }
 
     const available = 100 - fixed.value(),
-      others = this.#rates.filter((rate: TradeRate) => rate !== fixed),
+      others = this._rates.filter((rate: TradeRate) => rate !== fixed),
       current = others.reduce(
         (total: number, rate: TradeRate): number => total + rate.value(),
         0
@@ -60,7 +60,7 @@ export class PlayerTradeRates extends DataObject implements IPlayerTradeRates {
   }
 
   get(TradeRateType: typeof TradeRate): TradeRate {
-    const [tradeRate] = this.#rates.filter(
+    const [tradeRate] = this._rates.filter(
       (rate: TradeRate): boolean => rate instanceof TradeRateType
     );
 
@@ -68,7 +68,7 @@ export class PlayerTradeRates extends DataObject implements IPlayerTradeRates {
   }
 
   player(): Player {
-    return this.#player;
+    return this._player;
   }
 
   set(Type: typeof TradeRate, value: number): void {
@@ -91,7 +91,7 @@ export class PlayerTradeRates extends DataObject implements IPlayerTradeRates {
   }
 
   total(): number {
-    return this.#rates.reduce(
+    return this._rates.reduce(
       (total: number, rate: TradeRate) => total + rate.value(),
       0
     );

@@ -17,7 +17,8 @@ export declare class PlayerTradeRates
   extends DataObject
   implements IPlayerTradeRates
 {
-  #private;
+  private _player;
+  private _rates;
   constructor(player: Player, ...rates: TradeRate[]);
   all(): TradeRate[];
   balance(fixed: TradeRate): void;
