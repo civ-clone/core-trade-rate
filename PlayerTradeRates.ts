@@ -4,6 +4,7 @@ import {
 } from '@civ-clone/core-data-object/DataObject';
 import Player from '@civ-clone/core-player/Player';
 import TradeRate from './TradeRate';
+import { instance as rngInstance } from '@civ-clone/core-random';
 
 export interface IPlayerTradeRates extends IDataObject {
   all(): TradeRate[];
@@ -17,13 +18,28 @@ export interface IPlayerTradeRates extends IDataObject {
 
 export class PlayerTradeRates extends DataObject implements IPlayerTradeRates {
   private _player: Player;
+  private _randomNumberGenerator: () => number = rngInstance;
   private _rates: TradeRate[] = [];
 
-  constructor(player: Player, ...rates: TradeRate[]) {
+  // The generator arrives among the variadic arguments, discriminated by type,
+  // rather than as a parameter of its own. A rest parameter cannot be followed
+  // by another, and inserting one ahead of it would break every existing call
+  // — the change has to stay range-compatible within `0.1.x`. This is the
+  // pattern `core-diplomacy`'s `Interaction` already uses.
+  constructor(player: Player, ...rates: (TradeRate | (() => number))[]) {
     super();
 
     this._player = player;
-    this._rates = rates;
+
+    rates.forEach((rate: TradeRate | (() => number)): void => {
+      if (typeof rate === 'function') {
+        this._randomNumberGenerator = rate;
+
+        return;
+      }
+
+      this._rates.push(rate);
+    });
 
     this.addKey('all');
   }
@@ -49,13 +65,15 @@ export class PlayerTradeRates extends DataObject implements IPlayerTradeRates {
     );
 
     if (this.total() < 100) {
-      others[Math.floor(others.length * Math.random())].add(100 - this.total());
+      others[Math.floor(others.length * this._randomNumberGenerator())].add(
+        100 - this.total()
+      );
     }
 
     if (this.total() > 100) {
-      others[Math.floor(others.length * Math.random())].subtract(
-        100 - this.total()
-      );
+      others[
+        Math.floor(others.length * this._randomNumberGenerator())
+      ].subtract(100 - this.total());
     }
   }
 

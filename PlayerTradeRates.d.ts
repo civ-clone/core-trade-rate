@@ -18,8 +18,9 @@ export declare class PlayerTradeRates
   implements IPlayerTradeRates
 {
   private _player;
+  private _randomNumberGenerator;
   private _rates;
-  constructor(player: Player, ...rates: TradeRate[]);
+  constructor(player: Player, ...rates: (TradeRate | (() => number))[]);
   all(): TradeRate[];
   balance(fixed: TradeRate): void;
   get(TradeRateType: typeof TradeRate): TradeRate;
