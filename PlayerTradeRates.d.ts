@@ -17,6 +17,7 @@ export declare class PlayerTradeRates
   extends DataObject
   implements IPlayerTradeRates
 {
+  static readonly transient: string[];
   private _player;
   private _randomNumberGenerator;
   private _rates;

@@ -17,6 +17,7 @@ export interface IPlayerTradeRates extends IDataObject {
 }
 
 export class PlayerTradeRates extends DataObject implements IPlayerTradeRates {
+  static readonly transient = ['_randomNumberGenerator'];
   private _player: Player;
   private _randomNumberGenerator: () => number = rngInstance;
   private _rates: TradeRate[] = [];

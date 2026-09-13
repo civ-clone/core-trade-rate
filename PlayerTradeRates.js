@@ -63,5 +63,6 @@ class PlayerTradeRates extends DataObject_1.DataObject {
     }
 }
 exports.PlayerTradeRates = PlayerTradeRates;
+PlayerTradeRates.transient = ['_randomNumberGenerator'];
 exports.default = PlayerTradeRates;
 //# sourceMappingURL=PlayerTradeRates.js.map
