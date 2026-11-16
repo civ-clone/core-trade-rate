@@ -40,7 +40,11 @@ class PlayerTradeRates extends DataObject_1.DataObject {
             return;
         }
         const available = 100 - fixed.value(), others = this._rates.filter((rate) => rate !== fixed), current = others.reduce((total, rate) => total + rate.value(), 0);
-        others.forEach((rate) => rate.set((rate.value() / current) * available));
+        // With nothing in the others there's nothing to share by, so they share it evenly. This used to make every other
+        //  rate `NaN`; any other case is as it always was.
+        others.forEach((rate) => rate.set(current === 0
+            ? available / others.length
+            : (rate.value() / current) * available));
         if (this.total() < 100) {
             others[Math.floor(others.length * this._randomNumberGenerator())].add(100 - this.total());
         }
@@ -50,8 +54,9 @@ class PlayerTradeRates extends DataObject_1.DataObject {
     }
     /**
      * Brings any rate over its maximum (`MaxRate`) down to it, and moves what it had over to the rates `ExcessRate`
-     *  says, in order, each taking what it can up to its own maximum. Rates are seen to in the player's order. What none
-     *  can take stays where it was, as the maximums then leave no way to make 100. Answers whether anything moved.
+     *  says, in order, then to any other rate it left out, each taking what it can up to its own maximum. Rates are seen
+     *  to in the player's order. What none can take stays where it was, as the maximums then leave no way to make 100.
+     *  Answers whether any rate changed.
      *
      * With no `MaxRate` rules, nothing is ever over, and nothing is asked.
      */
@@ -67,7 +72,7 @@ class PlayerTradeRates extends DataObject_1.DataObject {
                 maximums.set(rate, Math.round(maximum * 1e6) / 1e4);
             }
         });
-        let changed = false;
+        const before = this._rates.map((rate) => rate.value());
         this._rates.forEach((rate) => {
             const maximum = maximumOf(rate);
             if (rate.value() <= maximum) {
@@ -75,7 +80,6 @@ class PlayerTradeRates extends DataObject_1.DataObject {
             }
             let excess = rate.value() - maximum;
             rate.set(maximum);
-            changed = true;
             this.excessTo(rate).forEach((recipient) => {
                 const room = maximumOf(recipient) - recipient.value();
                 if (excess <= 0 || room <= 0) {
@@ -89,7 +93,7 @@ class PlayerTradeRates extends DataObject_1.DataObject {
                 rate.set(rate.value() + excess);
             }
         });
-        return changed;
+        return this._rates.some((rate, index) => rate.value() !== before[index]);
     }
     get(TradeRateType) {
         const [tradeRate] = this._rates.filter((rate) => rate instanceof TradeRateType);
@@ -141,17 +145,22 @@ class PlayerTradeRates extends DataObject_1.DataObject {
         // Rates that come to 100 are always taken, and reshaped to the maximums.
         this.enforceMaxRates();
     }
-    // Where the excess over `rate`'s maximum goes (`ExcessRate`): the first answer, or the other rates in order.
+    // Where the excess over `rate`'s maximum goes: the rates `ExcessRate`'s first answer gives, in its order, then any
+    //  other rate it left out, in the player's order; with no answer, the other rates in the player's order.
     excessTo(rate) {
         const [order] = this._ruleRegistry
             .process(ExcessRate_1.default, this._player, rate)
-            .filter((answer) => Array.isArray(answer));
+            .filter((answer) => Array.isArray(answer)), others = this._rates.filter((other) => other !== rate);
         if (order === undefined) {
-            return this._rates.filter((other) => other !== rate);
+            return others;
         }
-        return order
+        const named = order
             .map((Type) => this.get(Type))
-            .filter((other) => other !== undefined && other !== rate);
+            .filter((other, index, all) => other !== undefined && other !== rate && all.indexOf(other) === index);
+        return [
+            ...named,
+            ...others.filter((other) => !named.includes(other)),
+        ];
     }
     total() {
         return this._rates.reduce((total, rate) => total + rate.value(), 0);

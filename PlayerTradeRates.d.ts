@@ -34,8 +34,9 @@ export declare class PlayerTradeRates
   balance(fixed: TradeRate): void;
   /**
    * Brings any rate over its maximum (`MaxRate`) down to it, and moves what it had over to the rates `ExcessRate`
-   *  says, in order, each taking what it can up to its own maximum. Rates are seen to in the player's order. What none
-   *  can take stays where it was, as the maximums then leave no way to make 100. Answers whether anything moved.
+   *  says, in order, then to any other rate it left out, each taking what it can up to its own maximum. Rates are seen
+   *  to in the player's order. What none can take stays where it was, as the maximums then leave no way to make 100.
+   *  Answers whether any rate changed.
    *
    * With no `MaxRate` rules, nothing is ever over, and nothing is asked.
    */

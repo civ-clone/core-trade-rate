@@ -101,4 +101,23 @@ describe('PlayerTradeRates', (): void => {
     expect(values(rates)).to.deep.equal([40, 20, 40]);
     expect(rng.calls).to.equal(0);
   });
+
+  it('shares what one rate leaves evenly when the others have nothing, which used to make them `NaN`', (): void => {
+    const rng = generator(),
+      rates = setUp(100, 0, 0, rng);
+
+    rates.set(Tax, 40);
+
+    expect(values(rates)).to.deep.equal([40, 30, 30]);
+    expect(rng.calls).to.equal(0);
+
+    rates.setAll([
+      [Tax, 100],
+      [Luxuries, 0],
+      [Research, 0],
+    ]);
+    rates.set(Tax, 0);
+
+    expect(values(rates)).to.deep.equal([0, 50, 50]);
+  });
 });

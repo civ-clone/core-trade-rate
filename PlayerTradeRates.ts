@@ -81,8 +81,14 @@ export class PlayerTradeRates extends DataObject implements IPlayerTradeRates {
         0
       );
 
+    // With nothing in the others there's nothing to share by, so they share it evenly. This used to make every other
+    //  rate `NaN`; any other case is as it always was.
     others.forEach((rate: TradeRate): void =>
-      rate.set((rate.value() / current) * available)
+      rate.set(
+        current === 0
+          ? available / others.length
+          : (rate.value() / current) * available
+      )
     );
 
     if (this.total() < 100) {
@@ -100,8 +106,9 @@ export class PlayerTradeRates extends DataObject implements IPlayerTradeRates {
 
   /**
    * Brings any rate over its maximum (`MaxRate`) down to it, and moves what it had over to the rates `ExcessRate`
-   *  says, in order, each taking what it can up to its own maximum. Rates are seen to in the player's order. What none
-   *  can take stays where it was, as the maximums then leave no way to make 100. Answers whether anything moved.
+   *  says, in order, then to any other rate it left out, each taking what it can up to its own maximum. Rates are seen
+   *  to in the player's order. What none can take stays where it was, as the maximums then leave no way to make 100.
+   *  Answers whether any rate changed.
    *
    * With no `MaxRate` rules, nothing is ever over, and nothing is asked.
    */
@@ -123,7 +130,7 @@ export class PlayerTradeRates extends DataObject implements IPlayerTradeRates {
       }
     });
 
-    let changed = false;
+    const before = this._rates.map((rate: TradeRate): number => rate.value());
 
     this._rates.forEach((rate: TradeRate): void => {
       const maximum = maximumOf(rate);
@@ -135,7 +142,6 @@ export class PlayerTradeRates extends DataObject implements IPlayerTradeRates {
       let excess = rate.value() - maximum;
 
       rate.set(maximum);
-      changed = true;
 
       this.excessTo(rate).forEach((recipient: TradeRate): void => {
         const room = maximumOf(recipient) - recipient.value();
@@ -155,7 +161,10 @@ export class PlayerTradeRates extends DataObject implements IPlayerTradeRates {
       }
     });
 
-    return changed;
+    return this._rates.some(
+      (rate: TradeRate, index: number): boolean =>
+        rate.value() !== before[index]
+    );
   }
 
   get(TradeRateType: typeof TradeRate): TradeRate {
@@ -238,24 +247,37 @@ export class PlayerTradeRates extends DataObject implements IPlayerTradeRates {
     this.enforceMaxRates();
   }
 
-  // Where the excess over `rate`'s maximum goes (`ExcessRate`): the first answer, or the other rates in order.
+  // Where the excess over `rate`'s maximum goes: the rates `ExcessRate`'s first answer gives, in its order, then any
+  //  other rate it left out, in the player's order; with no answer, the other rates in the player's order.
   private excessTo(rate: TradeRate): TradeRate[] {
     const [order] = this._ruleRegistry
-      .process(ExcessRate, this._player, rate)
-      .filter((answer): answer is (typeof TradeRate)[] =>
-        Array.isArray(answer)
+        .process(ExcessRate, this._player, rate)
+        .filter((answer): answer is (typeof TradeRate)[] =>
+          Array.isArray(answer)
+        ),
+      others = this._rates.filter(
+        (other: TradeRate): boolean => other !== rate
       );
 
     if (order === undefined) {
-      return this._rates.filter((other: TradeRate): boolean => other !== rate);
+      return others;
     }
 
-    return order
+    const named = order
       .map((Type: typeof TradeRate): TradeRate | undefined => this.get(Type))
       .filter(
-        (other: TradeRate | undefined): other is TradeRate =>
-          other !== undefined && other !== rate
+        (
+          other: TradeRate | undefined,
+          index: number,
+          all
+        ): other is TradeRate =>
+          other !== undefined && other !== rate && all.indexOf(other) === index
       );
+
+    return [
+      ...named,
+      ...others.filter((other: TradeRate): boolean => !named.includes(other)),
+    ];
   }
 
   total(): number {

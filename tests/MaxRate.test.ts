@@ -229,6 +229,39 @@ describe('MaxRate', (): void => {
       expect(rates.total()).to.equal(100);
     });
 
+    it('answers that nothing moved when an excess has nowhere to go', (): void => {
+      const rates = setUp(40, 30, 30, capped(0.3));
+
+      expect(rates.enforceMaxRates()).to.equal(false);
+      expect(values(rates)).to.deep.equal([40, 30, 30]);
+    });
+
+    it('moves an excess on to a rate the `ExcessRate` answer left out, when the rates it named are full', (): void => {
+      const ruleRegistry = new RuleRegistry();
+
+      ruleRegistry.register(
+        new MaxRate(
+          new Criterion((player, rate) => rate instanceof Tax),
+          new Effect(() => 0.5)
+        ),
+        new MaxRate(
+          new Criterion((player, rate) => rate instanceof Research),
+          new Effect(() => 0.4)
+        ),
+        new ExcessRate(new Effect(() => [Research]))
+      );
+
+      const rates = setUp(50, 10, 40, ruleRegistry);
+
+      rates.setAll([
+        [Tax, 60],
+        [Luxuries, 0],
+        [Research, 40],
+      ]);
+
+      expect(values(rates)).to.deep.equal([50, 10, 40]);
+    });
+
     it('sets one rate no higher than its maximum, and shares the rest as before', (): void => {
       const rates = setUp(40, 20, 40, capped(0.7));
 
