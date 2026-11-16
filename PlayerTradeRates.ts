@@ -12,10 +12,13 @@ import Player from '@civ-clone/core-player/Player';
 import TradeRate from './TradeRate';
 import { instance as rngInstance } from '@civ-clone/core-random';
 
+// What's left over from adding and taking fractions: smaller than this, a rate is as it was.
+const TOLERANCE = 1e-9;
+
 export interface IPlayerTradeRates extends IDataObject {
   all(): TradeRate[];
   balance(fixed: TradeRate): void;
-  enforceMaxRates(): boolean;
+  enforceMaxRates(fixed?: TradeRate): boolean;
   get(Type: typeof TradeRate): TradeRate;
   maxRate(Type: typeof TradeRate): number | undefined;
   maxRates(): [TradeRate, number | undefined][];
@@ -108,11 +111,14 @@ export class PlayerTradeRates extends DataObject implements IPlayerTradeRates {
    * Brings any rate over its maximum (`MaxRate`) down to it, and moves what it had over to the rates `ExcessRate`
    *  says, in order, then to any other rate it left out, each taking what it can up to its own maximum. Rates are seen
    *  to in the player's order. What none can take stays where it was, as the maximums then leave no way to make 100.
-   *  Answers whether any rate changed.
+   *  Answers whether any rate changed (beyond a rounding error, which is left as it is).
+   *
+   * `fixed` is a rate just set: it takes an excess last, after every other rate, so that what was moved out of it isn't
+   *  moved straight back.
    *
    * With no `MaxRate` rules, nothing is ever over, and nothing is asked.
    */
-  enforceMaxRates(): boolean {
+  enforceMaxRates(fixed?: TradeRate): boolean {
     if (this._ruleRegistry.get(MaxRate).length === 0) {
       return false;
     }
@@ -135,7 +141,7 @@ export class PlayerTradeRates extends DataObject implements IPlayerTradeRates {
     this._rates.forEach((rate: TradeRate): void => {
       const maximum = maximumOf(rate);
 
-      if (rate.value() <= maximum) {
+      if (rate.value() <= maximum + TOLERANCE) {
         return;
       }
 
@@ -143,10 +149,10 @@ export class PlayerTradeRates extends DataObject implements IPlayerTradeRates {
 
       rate.set(maximum);
 
-      this.excessTo(rate).forEach((recipient: TradeRate): void => {
+      this.excessTo(rate, fixed).forEach((recipient: TradeRate): void => {
         const room = maximumOf(recipient) - recipient.value();
 
-        if (excess <= 0 || room <= 0) {
+        if (excess <= TOLERANCE || room <= TOLERANCE) {
           return;
         }
 
@@ -156,14 +162,14 @@ export class PlayerTradeRates extends DataObject implements IPlayerTradeRates {
         excess -= moved;
       });
 
-      if (excess > 0) {
+      if (excess > TOLERANCE) {
         rate.set(rate.value() + excess);
       }
     });
 
     return this._rates.some(
       (rate: TradeRate, index: number): boolean =>
-        rate.value() !== before[index]
+        Math.abs(rate.value() - before[index]) > TOLERANCE
     );
   }
 
@@ -230,7 +236,8 @@ export class PlayerTradeRates extends DataObject implements IPlayerTradeRates {
 
     this.balance(rate);
 
-    this.enforceMaxRates();
+    // The rate just set takes an excess last, so a cap doesn't undo the change.
+    this.enforceMaxRates(rate);
   }
 
   setAll(ratesAndValues: [typeof TradeRate, number][]): void {
@@ -248,8 +255,9 @@ export class PlayerTradeRates extends DataObject implements IPlayerTradeRates {
   }
 
   // Where the excess over `rate`'s maximum goes: the rates `ExcessRate`'s first answer gives, in its order, then any
-  //  other rate it left out, in the player's order; with no answer, the other rates in the player's order.
-  private excessTo(rate: TradeRate): TradeRate[] {
+  //  other rate it left out, in the player's order; with no answer, the other rates in the player's order. `fixed`,
+  //  the rate just set, goes last whatever the order.
+  private excessTo(rate: TradeRate, fixed?: TradeRate): TradeRate[] {
     const [order] = this._ruleRegistry
         .process(ExcessRate, this._player, rate)
         .filter((answer): answer is (typeof TradeRate)[] =>
@@ -259,8 +267,13 @@ export class PlayerTradeRates extends DataObject implements IPlayerTradeRates {
         (other: TradeRate): boolean => other !== rate
       );
 
+    const lastly = (rates: TradeRate[]): TradeRate[] =>
+      fixed === undefined || !rates.includes(fixed)
+        ? rates
+        : [...rates.filter((other) => other !== fixed), fixed];
+
     if (order === undefined) {
-      return others;
+      return lastly(others);
     }
 
     const named = order
@@ -274,10 +287,10 @@ export class PlayerTradeRates extends DataObject implements IPlayerTradeRates {
           other !== undefined && other !== rate && all.indexOf(other) === index
       );
 
-    return [
+    return lastly([
       ...named,
       ...others.filter((other: TradeRate): boolean => !named.includes(other)),
-    ];
+    ]);
   }
 
   total(): number {

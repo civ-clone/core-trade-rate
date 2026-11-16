@@ -13,7 +13,8 @@ A rule set may limit how much of their trade a player puts into each rate:
   left, in the player's order; with no answer it goes to the other rates in the player's order. What no rate can take
   stays on the rate, as the maximums then leave no way to make 100.
 
-`PlayerTradeRates#set` sets a rate no higher than its maximum, and `setAll` takes any rates that come to 100 and
+`PlayerTradeRates#set` sets a rate no higher than its maximum (and the rate it sets takes any excess last, so a cap
+doesn't move the change straight back), and `setAll` takes any rates that come to 100 and
 reshapes them to the maximums, so neither refuses rates a maximum changes. `enforceMaxRates()` does the same for rates
 that are already over, for example after a change of government. `maxRate(Type)`, `maxRates()` and the `maxRates(player)`
 helper answer the maximums, for showing them.

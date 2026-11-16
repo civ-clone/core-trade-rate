@@ -8,7 +8,7 @@ import TradeRate from './TradeRate';
 export interface IPlayerTradeRates extends IDataObject {
   all(): TradeRate[];
   balance(fixed: TradeRate): void;
-  enforceMaxRates(): boolean;
+  enforceMaxRates(fixed?: TradeRate): boolean;
   get(Type: typeof TradeRate): TradeRate;
   maxRate(Type: typeof TradeRate): number | undefined;
   maxRates(): [TradeRate, number | undefined][];
@@ -36,11 +36,14 @@ export declare class PlayerTradeRates
    * Brings any rate over its maximum (`MaxRate`) down to it, and moves what it had over to the rates `ExcessRate`
    *  says, in order, then to any other rate it left out, each taking what it can up to its own maximum. Rates are seen
    *  to in the player's order. What none can take stays where it was, as the maximums then leave no way to make 100.
-   *  Answers whether any rate changed.
+   *  Answers whether any rate changed (beyond a rounding error, which is left as it is).
+   *
+   * `fixed` is a rate just set: it takes an excess last, after every other rate, so that what was moved out of it isn't
+   *  moved straight back.
    *
    * With no `MaxRate` rules, nothing is ever over, and nothing is asked.
    */
-  enforceMaxRates(): boolean;
+  enforceMaxRates(fixed?: TradeRate): boolean;
   get(TradeRateType: typeof TradeRate): TradeRate;
   /**
    * The most the player may put into `Type`, as a fraction of their trade from 0 to 1: the lowest of the `MaxRate`

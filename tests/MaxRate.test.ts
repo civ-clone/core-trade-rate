@@ -262,6 +262,25 @@ describe('MaxRate', (): void => {
       expect(values(rates)).to.deep.equal([50, 10, 40]);
     });
 
+    it("doesn't undo a rate just set by moving the excess straight back into it", (): void => {
+      const rates = setUp(60, 0, 40, capped(0.6));
+
+      rates.set(Research, 0);
+
+      // Balancing puts all 100 in tax; tax's 40 over would go to research first, but research was just set.
+      expect(values(rates)).to.deep.equal([60, 40, 0]);
+    });
+
+    it('leaves a rounding error alone, and says nothing changed', (): void => {
+      const rates = setUp(60, 0, 40, capped(0.6));
+
+      rates.get(Tax).set(60.00000000000001);
+      rates.get(Research).set(39.99999999999999);
+
+      expect(rates.enforceMaxRates()).to.equal(false);
+      expect(rates.get(Tax).value()).to.equal(60.00000000000001);
+    });
+
     it('sets one rate no higher than its maximum, and shares the rest as before', (): void => {
       const rates = setUp(40, 20, 40, capped(0.7));
 

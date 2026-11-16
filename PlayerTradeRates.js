@@ -6,6 +6,8 @@ const RuleRegistry_1 = require("@civ-clone/core-rule/RuleRegistry");
 const ExcessRate_1 = require("./Rules/ExcessRate");
 const MaxRate_1 = require("./Rules/MaxRate");
 const core_random_1 = require("@civ-clone/core-random");
+// What's left over from adding and taking fractions: smaller than this, a rate is as it was.
+const TOLERANCE = 1e-9;
 class PlayerTradeRates extends DataObject_1.DataObject {
     // The generator arrives among the variadic arguments, discriminated by type,
     // rather than as a parameter of its own. A rest parameter cannot be followed
@@ -56,11 +58,14 @@ class PlayerTradeRates extends DataObject_1.DataObject {
      * Brings any rate over its maximum (`MaxRate`) down to it, and moves what it had over to the rates `ExcessRate`
      *  says, in order, then to any other rate it left out, each taking what it can up to its own maximum. Rates are seen
      *  to in the player's order. What none can take stays where it was, as the maximums then leave no way to make 100.
-     *  Answers whether any rate changed.
+     *  Answers whether any rate changed (beyond a rounding error, which is left as it is).
+     *
+     * `fixed` is a rate just set: it takes an excess last, after every other rate, so that what was moved out of it isn't
+     *  moved straight back.
      *
      * With no `MaxRate` rules, nothing is ever over, and nothing is asked.
      */
-    enforceMaxRates() {
+    enforceMaxRates(fixed) {
         if (this._ruleRegistry.get(MaxRate_1.default).length === 0) {
             return false;
         }
@@ -75,25 +80,25 @@ class PlayerTradeRates extends DataObject_1.DataObject {
         const before = this._rates.map((rate) => rate.value());
         this._rates.forEach((rate) => {
             const maximum = maximumOf(rate);
-            if (rate.value() <= maximum) {
+            if (rate.value() <= maximum + TOLERANCE) {
                 return;
             }
             let excess = rate.value() - maximum;
             rate.set(maximum);
-            this.excessTo(rate).forEach((recipient) => {
+            this.excessTo(rate, fixed).forEach((recipient) => {
                 const room = maximumOf(recipient) - recipient.value();
-                if (excess <= 0 || room <= 0) {
+                if (excess <= TOLERANCE || room <= TOLERANCE) {
                     return;
                 }
                 const moved = Math.min(room, excess);
                 recipient.set(recipient.value() + moved);
                 excess -= moved;
             });
-            if (excess > 0) {
+            if (excess > TOLERANCE) {
                 rate.set(rate.value() + excess);
             }
         });
-        return this._rates.some((rate, index) => rate.value() !== before[index]);
+        return this._rates.some((rate, index) => Math.abs(rate.value() - before[index]) > TOLERANCE);
     }
     get(TradeRateType) {
         const [tradeRate] = this._rates.filter((rate) => rate instanceof TradeRateType);
@@ -134,7 +139,8 @@ class PlayerTradeRates extends DataObject_1.DataObject {
             ? value
             : Math.min(value, Math.round(maximum * 1e6) / 1e4));
         this.balance(rate);
-        this.enforceMaxRates();
+        // The rate just set takes an excess last, so a cap doesn't undo the change.
+        this.enforceMaxRates(rate);
     }
     setAll(ratesAndValues) {
         if (ratesAndValues.reduce((total, [, value]) => total + value, 0) !==
@@ -146,21 +152,25 @@ class PlayerTradeRates extends DataObject_1.DataObject {
         this.enforceMaxRates();
     }
     // Where the excess over `rate`'s maximum goes: the rates `ExcessRate`'s first answer gives, in its order, then any
-    //  other rate it left out, in the player's order; with no answer, the other rates in the player's order.
-    excessTo(rate) {
+    //  other rate it left out, in the player's order; with no answer, the other rates in the player's order. `fixed`,
+    //  the rate just set, goes last whatever the order.
+    excessTo(rate, fixed) {
         const [order] = this._ruleRegistry
             .process(ExcessRate_1.default, this._player, rate)
             .filter((answer) => Array.isArray(answer)), others = this._rates.filter((other) => other !== rate);
+        const lastly = (rates) => fixed === undefined || !rates.includes(fixed)
+            ? rates
+            : [...rates.filter((other) => other !== fixed), fixed];
         if (order === undefined) {
-            return others;
+            return lastly(others);
         }
         const named = order
             .map((Type) => this.get(Type))
             .filter((other, index, all) => other !== undefined && other !== rate && all.indexOf(other) === index);
-        return [
+        return lastly([
             ...named,
             ...others.filter((other) => !named.includes(other)),
-        ];
+        ]);
     }
     total() {
         return this._rates.reduce((total, rate) => total + rate.value(), 0);
